@@ -7,10 +7,18 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import de.greenrobot.event.EventBus;
 
 
@@ -22,11 +30,12 @@ public class MonitorService extends Service implements LocationListener {
     private static final int LOCATION_UPDATE_INTERVAL_MILLIS = 500;
 
     private static final String TAG = "service_test";
-    private static final double DUMMY_SPEED_LIMIT = 110;
 
     private LocationManager mLocationManager;
 
     private final Report mReport = new Report();
+
+    public static final ToneGenerator BEEP_GENERATOR = new ToneGenerator(AudioManager.STREAM_NOTIFICATION,ToneGenerator.MAX_VOLUME);
 
 
     @Nullable
@@ -47,11 +56,9 @@ public class MonitorService extends Service implements LocationListener {
 
         Log.d(TAG, "Started monitor service.");
 
-
         final Criteria criteria = new Criteria();
 
         criteria.setSpeedRequired(true);
-
 
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
@@ -66,6 +73,7 @@ public class MonitorService extends Service implements LocationListener {
 
 
 
+
         Log.d(TAG, location.toString());
 
         if (location.getSpeed() != 0){
@@ -73,10 +81,38 @@ public class MonitorService extends Service implements LocationListener {
 
             EventBus.getDefault().post(new Events.NewSpeedCapturedEvent(speed));
 
-            mReport.recordSpeed(speed);
+            mReport.recordSpeed(speed,location);
+
+            if (mReport.doesLastSpeedDeserveTicket()){
+
+                mReport.addNewTicketFromLastSpeed(location);
+
+                //Notify user about it and beep sound
+                playBeepSound();
+
+                mReport.pauseTickets();
+
+                mReport.resumeTicketsAfter(Report.DELAY_BETWEEN_TICKETS_SECONDS * 1000);
+
+            }
         }
 
+        playBeepSound();
 
+    }
+
+    private void playBeepSound() {
+
+        BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
+
+        final Timer timer = new Timer();
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
+            }
+        }, 1000, 3 * 1000);
 
 
 
