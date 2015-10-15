@@ -3,4 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_add_monitor_email">Add monitor email</string>
     <string name="content_ask_monitor_email">Enter monitor email address</string>
+    <string name="btn_start_monitoring">Start monitoring</string>
+    <string name="btn_send_report">Send report</string>
+    <string name="toast_monitoring_started">Monitoring started in background. Click on send report button when finished.</string>
 </resources>

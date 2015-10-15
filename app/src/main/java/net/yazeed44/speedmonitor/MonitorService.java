@@ -70,16 +70,11 @@ public class MonitorService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(final Location location) {
-
-
-
+        final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
 
         Log.d(TAG, location.toString());
 
         if (location.getSpeed() != 0){
-            final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
-
-            EventBus.getDefault().post(new Events.NewSpeedCapturedEvent(speed));
 
             mReport.recordSpeed(speed,location);
 
@@ -97,6 +92,7 @@ public class MonitorService extends Service implements LocationListener {
             }
         }
 
+        EventBus.getDefault().post(new Events.NewSpeedCapturedEvent(speed));
         playBeepSound();
 
     }

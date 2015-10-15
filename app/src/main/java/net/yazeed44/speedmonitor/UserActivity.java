@@ -1,10 +1,9 @@
 package net.yazeed44.speedmonitor;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -12,7 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -34,9 +34,22 @@ public class UserActivity extends AppCompatActivity {
 
         speedView = (SpeedometerGauge) findViewById(R.id.speed_text);
 
-        speedView.setMaxSpeed(110);
+        initSpeedView();
+    }
 
+    private void initSpeedView() {
+        final int maxSpeed = 240;
+        speedView.setMaxSpeed(maxSpeed);
+        speedView.setMajorTickStep(30);
+        speedView.setMinorTicks(2);
+        speedView.addColoredRange(Report.DUMMY_SPEED_LIMIT, maxSpeed, Color.RED);
 
+        speedView.setLabelConverter(new SpeedometerGauge.LabelConverter() {
+            @Override
+            public String getLabelFor(double progress, double maxProgress) {
+                return String.valueOf((int) Math.round(progress));
+            }
+        });
 
     }
 
@@ -92,7 +105,7 @@ public class UserActivity extends AppCompatActivity {
 
         realm.commitTransaction();
 
-        Log.d(TAG,"Monitors email " + realm.allObjects(Monitor.class));
+        Log.d(TAG, "Monitors email " + realm.allObjects(Monitor.class));
 
 
         realm.close();
@@ -110,8 +123,28 @@ public class UserActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void onClickLaunchService(View view) {
-        startService(new Intent(this, MonitorService.class));
+    public void onClickStartMonitoring(View view) {
+        final Button startMonitoringBtn = (Button)view;
+
+        if (startMonitoringBtn.getText().equals(getResources().getString(R.string.btn_start_monitoring))){
+
+            startService(new Intent(this,MonitorService.class));
+            startMonitoringBtn.setText(R.string.btn_send_report);
+            Toast.makeText(this,R.string.toast_monitoring_started,Toast.LENGTH_LONG).show();
+        }
+
+        else {
+            sendEmailToMonitors();
+            startMonitoringBtn.setText(R.string.btn_start_monitoring);
+
+        }
+
+
+    }
+
+    private void sendEmailToMonitors() {
+        
+
     }
 
     public void onEvent(final Events.NewSpeedCapturedEvent newSpeedCapturedEvent){
