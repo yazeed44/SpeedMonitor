@@ -9,16 +9,10 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main" tools:context=".MainActivity">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_start_monitoring"
-        android:onClick="onClickStartMonitoring"
 
-        />
 
-    <net.yazeed44.speedmonitor.SpeedometerGauge
-        android:id="@+id/speed_text"
+    <net.yazeed44.speedmonitor.ui.SpeedometerGauge
+        android:id="@+id/speed_gauge"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 

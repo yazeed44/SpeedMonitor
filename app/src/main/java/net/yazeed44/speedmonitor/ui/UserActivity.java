@@ -1,11 +1,10 @@
-package net.yazeed44.speedmonitor;
+package net.yazeed44.speedmonitor.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -15,42 +14,40 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.kristijandraca.backgroundmaillibrary.BackgroundMail;
+
+import net.yazeed44.speedmonitor.util.Events;
+import net.yazeed44.speedmonitor.model.Monitor;
+import net.yazeed44.speedmonitor.services.MonitorService;
+import net.yazeed44.speedmonitor.util.PrivateInfo;
+import net.yazeed44.speedmonitor.R;
+import net.yazeed44.speedmonitor.model.Report;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class UserActivity extends AppCompatActivity {
     private static final String TAG = UserActivity.class.getSimpleName();
 
     //User activity aka Main Activity
 
-    private SpeedometerGauge speedView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        showSpeedGaugeFragment();
 
-        speedView = (SpeedometerGauge) findViewById(R.id.speed_text);
-
-        initSpeedView();
     }
 
-    private void initSpeedView() {
-        final int maxSpeed = 240;
-        speedView.setMaxSpeed(maxSpeed);
-        speedView.setMajorTickStep(30);
-        speedView.setMinorTicks(2);
-        speedView.addColoredRange(Report.DUMMY_SPEED_LIMIT, maxSpeed, Color.RED);
-
-        speedView.setLabelConverter(new SpeedometerGauge.LabelConverter() {
-            @Override
-            public String getLabelFor(double progress, double maxProgress) {
-                return String.valueOf((int) Math.round(progress));
-            }
-        });
-
+    private void showSpeedGaugeFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container,new SpeedGaugeFragment())
+                .commit();
     }
 
     @Override
@@ -134,22 +131,63 @@ public class UserActivity extends AppCompatActivity {
         }
 
         else {
+            EventBus.getDefault().getStickyEvent(Events.PostReportEvent.class).report.endReport();
+            stopService(new Intent(this,MonitorService.class));
             sendEmailToMonitors();
             startMonitoringBtn.setText(R.string.btn_start_monitoring);
 
         }
 
 
-    }
+       }
 
     private void sendEmailToMonitors() {
-        
+        final Report report = EventBus.getDefault().getStickyEvent(Events.PostReportEvent.class).report;
+        final Realm realm = Realm.getInstance(this);
 
+        final RealmResults<Monitor> monitorQuery = realm.allObjects(Monitor.class);
+
+        final Monitor[] monitors = new Monitor[monitorQuery.size()];
+
+        final BackgroundMail bm = new BackgroundMail(this);
+        bm.setGmailUserName(PrivateInfo.EMAIL);
+        bm.setGmailPassword(PrivateInfo.PASSWORD);
+        bm.setAttachment(createFileForReport(report).getAbsolutePath());
+        bm.setFormSubject("Report - " + report.getReportStartingDate());
+        bm.setFormBody("Body");
+
+
+        String recipients = "";
+        for (int i = 0; i < monitors.length; i++) {
+            monitors[i] = monitorQuery.get(i);
+
+            recipients +=   monitors[i].getEmail() + "," ;
+        }
+        bm.setMailTo(recipients);
+        bm.send();
+        realm.close();
     }
+
+    private File createFileForReport(final Report report) {
+        final File reportFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/report_" + report.getReportStartingDate()+".txt");
+
+        try {
+            reportFile.createNewFile();
+            final FileOutputStream writer = new FileOutputStream(reportFile);
+            writer.write(report.generateReportText().getBytes());
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            Log.e(TAG,e.getMessage());
+        }
+
+
+        return reportFile;
+    }
+
 
     public void onEvent(final Events.NewSpeedCapturedEvent newSpeedCapturedEvent){
 
-        final String text = newSpeedCapturedEvent.speed + "  km/h";
-        speedView.setSpeed(newSpeedCapturedEvent.speed,true);
     }
 }

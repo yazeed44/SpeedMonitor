@@ -1,4 +1,4 @@
-package net.yazeed44.speedmonitor;
+package net.yazeed44.speedmonitor.model;
 
 import io.realm.RealmObject;
 

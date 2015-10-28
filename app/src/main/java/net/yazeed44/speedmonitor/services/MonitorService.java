@@ -1,4 +1,4 @@
-package net.yazeed44.speedmonitor;
+package net.yazeed44.speedmonitor.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -8,13 +8,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import net.yazeed44.speedmonitor.util.Events;
+import net.yazeed44.speedmonitor.model.Report;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,7 +34,7 @@ public class MonitorService extends Service implements LocationListener {
 
     private LocationManager mLocationManager;
 
-    private final Report mReport = new Report();
+    private  Report mReport;
 
     public static final ToneGenerator BEEP_GENERATOR = new ToneGenerator(AudioManager.STREAM_NOTIFICATION,ToneGenerator.MAX_VOLUME);
 
@@ -54,6 +55,7 @@ public class MonitorService extends Service implements LocationListener {
     public void onCreate() {
         super.onCreate();
 
+
         Log.d(TAG, "Started monitor service.");
 
         final Criteria criteria = new Criteria();
@@ -72,11 +74,16 @@ public class MonitorService extends Service implements LocationListener {
     public void onLocationChanged(final Location location) {
         final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
 
+        if (mReport == null){
+            mReport = new Report();
+        }
+
         Log.d(TAG, location.toString());
 
         if (location.getSpeed() != 0){
 
-            mReport.recordSpeed(speed,location);
+
+            mReport.recordSpeed(speed, location);
 
             if (mReport.doesLastSpeedDeserveTicket()){
 
@@ -93,12 +100,13 @@ public class MonitorService extends Service implements LocationListener {
         }
 
         EventBus.getDefault().post(new Events.NewSpeedCapturedEvent(speed));
-        playBeepSound();
+        EventBus.getDefault().postSticky(new Events.PostReportEvent(mReport));
 
     }
 
     private void playBeepSound() {
 
+        //TODO WHY it doesn't work?
         BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
 
         final Timer timer = new Timer();
@@ -118,6 +126,7 @@ public class MonitorService extends Service implements LocationListener {
 
     @Override
     public void onDestroy() {
+
         super.onDestroy();
         mLocationManager.removeUpdates(this);
 
@@ -125,7 +134,7 @@ public class MonitorService extends Service implements LocationListener {
     }
 
     private double convertMetersToKmPerHour(final double metersPerSecond){
-        return metersPerSecond * 3.6;
+        return metersPerSecond * 4;
     }
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {

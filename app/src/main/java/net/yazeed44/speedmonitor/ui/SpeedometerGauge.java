@@ -1,8 +1,7 @@
-package net.yazeed44.speedmonitor;
+package net.yazeed44.speedmonitor.ui;
 
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +12,8 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+
+import net.yazeed44.speedmonitor.R;
 
 import java.util.ArrayList;
 import java.util.List;
