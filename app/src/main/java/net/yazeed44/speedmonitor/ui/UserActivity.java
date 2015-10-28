@@ -53,6 +53,7 @@ public class UserActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.add_monitor_email, menu);
+        getMenuInflater().inflate(R.menu.start_monitoring,menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -65,6 +66,9 @@ public class UserActivity extends AppCompatActivity {
                 askForMonitorEmail();
                 break;
 
+            case R.id.action_start_monitoring:
+                onClickStartMonitoring(item);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -120,13 +124,13 @@ public class UserActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void onClickStartMonitoring(View view) {
-        final Button startMonitoringBtn = (Button)view;
+    public void onClickStartMonitoring(MenuItem menuItem) {
 
-        if (startMonitoringBtn.getText().equals(getResources().getString(R.string.btn_start_monitoring))){
+
+        if (menuItem.getTitle().equals(getResources().getString(R.string.action_start_monitoring))){
 
             startService(new Intent(this,MonitorService.class));
-            startMonitoringBtn.setText(R.string.btn_send_report);
+            menuItem.setTitle(R.string.action_send_report);
             Toast.makeText(this,R.string.toast_monitoring_started,Toast.LENGTH_LONG).show();
         }
 
@@ -134,7 +138,7 @@ public class UserActivity extends AppCompatActivity {
             EventBus.getDefault().getStickyEvent(Events.PostReportEvent.class).report.endReport();
             stopService(new Intent(this,MonitorService.class));
             sendEmailToMonitors();
-            startMonitoringBtn.setText(R.string.btn_start_monitoring);
+            menuItem.setTitle(R.string.action_start_monitoring);
 
         }
 

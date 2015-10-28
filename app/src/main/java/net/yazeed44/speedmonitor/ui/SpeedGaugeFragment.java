@@ -59,8 +59,6 @@ public class SpeedGaugeFragment extends Fragment {
         super.onPause();
     }
 
-
-
     public void onEvent(final Events.NewSpeedCapturedEvent event){
 
         mSpeedView.setSpeed(event.speed,true);

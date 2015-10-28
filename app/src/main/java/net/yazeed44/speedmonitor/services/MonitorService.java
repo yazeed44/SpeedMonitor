@@ -34,7 +34,7 @@ public class MonitorService extends Service implements LocationListener {
 
     private LocationManager mLocationManager;
 
-    private  Report mReport;
+    private Report mReport = new Report();
 
     public static final ToneGenerator BEEP_GENERATOR = new ToneGenerator(AudioManager.STREAM_NOTIFICATION,ToneGenerator.MAX_VOLUME);
 
@@ -73,10 +73,6 @@ public class MonitorService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(final Location location) {
         final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
-
-        if (mReport == null){
-            mReport = new Report();
-        }
 
         Log.d(TAG, location.toString());
 
