@@ -106,12 +106,17 @@ public class Report {
         final String seperator = "==============";
         for (int i = 0; i < mTickets.size(); i++) {
             final Ticket ticket = mTickets.get(i);
-            reportText.append("Ticket - Speed: ").append(ticket.speed).append(",  time: ").append(getDateFormattedForTicket(ticket.location.getTime()))
+            reportText.append("Ticket - Speed: ")
+                    .append(ticket.speed)
+                    .append(",  time: ")
+                    .append(getDateFormattedForTicket(ticket.location.getTime()))
                     .append("\n" + seperator + "\n");
         }
 
         reportText.append("\n")
-                .append(seperator).append("Report ended at ")
+                .append(seperator)
+                .append("\n")
+                .append("Report ended at ")
                 .append(getDateFormattedForReport(mTimeEnded));
 
         return reportText.toString();

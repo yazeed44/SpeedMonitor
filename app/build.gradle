@@ -33,6 +33,7 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'io.realm:realm-android:0.83.1'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
     compile('com.afollestad.material-dialogs:core:0.8.3.0@aar') {
         transitive = true
     }

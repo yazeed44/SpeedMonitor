@@ -4,7 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +32,8 @@ import net.yazeed44.speedmonitor.model.Report;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import io.realm.Realm;
@@ -40,20 +48,34 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        showSpeedGaugeFragment();
+
+        final Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        final ViewPager pager = (ViewPager)findViewById(R.id.user_pager);
+        final TabLayout tabLayout = (TabLayout)findViewById(R.id.user_tab);
+
+
+        setupViewPager(pager, tabLayout);
 
     }
 
-    private void showSpeedGaugeFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container,new SpeedGaugeFragment())
-                .commit();
+    private void setupViewPager(final ViewPager pager, final TabLayout tabLayout) {
+
+        final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addNewFragment(new SpeedGaugeFragment(),getResources().getString(R.string.tab_gauge));
+        adapter.addNewFragment(new Fragment(),getResources().getString(R.string.tab_log));
+
+        pager.setAdapter(adapter);
+
+        tabLayout.setupWithViewPager(pager);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.add_monitor_email, menu);
-        getMenuInflater().inflate(R.menu.start_monitoring,menu);
+        getMenuInflater().inflate(R.menu.start_monitoring, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -110,18 +132,6 @@ public class UserActivity extends AppCompatActivity {
 
 
         realm.close();
-    }
-
-    @Override
-    protected void onResume() {
-        EventBus.getDefault().register(this);
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
     }
 
     public void onClickStartMonitoring(MenuItem menuItem) {
@@ -191,7 +201,33 @@ public class UserActivity extends AppCompatActivity {
     }
 
 
-    public void onEvent(final Events.NewSpeedCapturedEvent newSpeedCapturedEvent){
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
 
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
+
+        public void addNewFragment(final Fragment fragment, final String title){
+
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
     }
 }
