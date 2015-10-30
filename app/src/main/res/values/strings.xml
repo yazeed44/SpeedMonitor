@@ -7,5 +7,6 @@
     <string name="action_send_report">Send report</string>
     <string name="toast_monitoring_started">Monitoring started in background. Click on send report button when finished.</string>
     <string name="tab_gauge">Gauge</string>
-    <string name="tab_log">Log</string>
+    <string name="tab_chart">Chart</string>
+    <string name="speed_limit_line">Speed limit</string>
 </resources>

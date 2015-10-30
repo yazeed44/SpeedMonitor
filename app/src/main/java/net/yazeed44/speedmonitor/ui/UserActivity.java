@@ -13,10 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -64,7 +62,7 @@ public class UserActivity extends AppCompatActivity {
 
         final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addNewFragment(new SpeedGaugeFragment(),getResources().getString(R.string.tab_gauge));
-        adapter.addNewFragment(new Fragment(),getResources().getString(R.string.tab_log));
+        adapter.addNewFragment(new ChartFragment(),getResources().getString(R.string.tab_chart));
 
         pager.setAdapter(adapter);
 

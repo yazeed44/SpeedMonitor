@@ -73,13 +73,13 @@ public class MonitorService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(final Location location) {
         final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
-
+        mReport.recordSpeed(speed, location);
         Log.d(TAG, location.toString());
 
         if (location.getSpeed() != 0){
 
 
-            mReport.recordSpeed(speed, location);
+
 
             if (mReport.doesLastSpeedDeserveTicket()){
 

@@ -73,6 +73,10 @@ public class Report {
         return sum;
     }
 
+    public SparseIntArray getSpeedRecords(){
+        return mSpeedRecords;
+    }
+
     public int getLastSpeed(){
         return mSpeedRecords.get(mSpeedRecords.size()-1);
     }
