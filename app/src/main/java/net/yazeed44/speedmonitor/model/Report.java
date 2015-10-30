@@ -1,8 +1,10 @@
 package net.yazeed44.speedmonitor.model;
 
 import android.location.Location;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.SparseLongArray;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,25 +23,24 @@ public class Report {
     public static final int DELAY_BETWEEN_TICKETS_SECONDS = 30;
 
 
-    private final SparseArray<Ticket> mTickets = new SparseArray<>();
-    private final SparseIntArray mSpeedRecords = new SparseIntArray();
+    private final SparseArray<SpeedEntry> mSpeedRecords = new SparseArray<>();
+
 
 
     //Pause between ticket. if i get a ticket i won't get ticket for another 30 seconds
     private boolean mTicketPause = false;
 
-    private final long mTimeStarted;
+    private long mTimeStarted;
     private long mTimeEnded;
-
-    public Report(){
-        mTimeStarted = System.currentTimeMillis();
-    }
 
     //Assuming there's no 0 speed here
 
 
     public void recordSpeed(final int speedInKmPerHour,final Location location){
-        mSpeedRecords.append(mSpeedRecords.size() - 1, speedInKmPerHour);
+        if (mSpeedRecords.size() == 0){
+            mTimeStarted = location.getTime();
+        }
+        mSpeedRecords.append(mSpeedRecords.size(), new SpeedEntry(speedInKmPerHour,location));
     }
 
 
@@ -66,19 +67,23 @@ public class Report {
     private int getSum(){
         int sum = 0;
         for(int i = 0; i < mSpeedRecords.size();i++){
-            final int speed = mSpeedRecords.get(i);
+            final int speed = mSpeedRecords.get(i).speed;
             sum += speed;
         }
 
         return sum;
     }
 
-    public SparseIntArray getSpeedRecords(){
+    public SparseArray<SpeedEntry> getSpeedRecords(){
         return mSpeedRecords;
     }
 
     public int getLastSpeed(){
-        return mSpeedRecords.get(mSpeedRecords.size()-1);
+        return mSpeedRecords.get(mSpeedRecords.size()-1).speed;
+    }
+
+    public SpeedEntry getLastSpeedRecord(){
+        return mSpeedRecords.get(mSpeedRecords.size() - 1);
     }
 
     public void resumeTicketsAfter(final int delayInMiliMeters) {
@@ -93,9 +98,15 @@ public class Report {
 
     }
 
-    public void addNewTicketFromLastSpeed(final Location location) {
-
-        mTickets.append(mTickets.size() - 1, new Ticket(location, getLastSpeed()));
+    public SparseArray<SpeedEntry> getTickets(){
+        final SparseArray<SpeedEntry> tickets = new SparseArray<>();
+        for (int i = 0; i < mSpeedRecords.size(); i++) {
+            final SpeedEntry record = mSpeedRecords.get(i);
+            if (record.isTicket()){
+                tickets.append(i,record);
+            }
+        }
+        return tickets;
     }
 
     public long getReportStartingDate(){
@@ -103,13 +114,14 @@ public class Report {
     }
 
     public String generateReportText() {
-        final StringBuilder reportText = new StringBuilder(" Report Started at  " + getDateFormattedForReport(mTimeStarted));
+        final StringBuilder reportText = new StringBuilder("Report Started at  " + getDateFormattedForReport(mTimeStarted));
 
 
 
         final String seperator = "==============";
-        for (int i = 0; i < mTickets.size(); i++) {
-            final Ticket ticket = mTickets.get(i);
+        final SparseArray<SpeedEntry> tickets = getTickets();
+        for (int i = 0; i < tickets.size(); i++) {
+            final SpeedEntry ticket = tickets.get(i);
             reportText.append("Ticket - Speed: ")
                     .append(ticket.speed)
                     .append(",  time: ")
@@ -118,7 +130,6 @@ public class Report {
         }
 
         reportText.append("\n")
-                .append(seperator)
                 .append("\n")
                 .append("Report ended at ")
                 .append(getDateFormattedForReport(mTimeEnded));
@@ -146,6 +157,6 @@ public class Report {
     }
 
     public void endReport(){
-        mTimeEnded = System.currentTimeMillis();
+        mTimeEnded = getLastSpeedRecord().location.getTime();
     }
 }

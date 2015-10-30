@@ -83,8 +83,6 @@ public class MonitorService extends Service implements LocationListener {
 
             if (mReport.doesLastSpeedDeserveTicket()){
 
-                mReport.addNewTicketFromLastSpeed(location);
-
                 //Notify user about it and beep sound
                 playBeepSound();
 
