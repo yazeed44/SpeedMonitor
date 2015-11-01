@@ -9,4 +9,5 @@
     <string name="tab_gauge">Gauge</string>
     <string name="tab_chart">Chart</string>
     <string name="speed_limit_line">Speed limit</string>
+    <string name="current_speed">Current speed:</string>
 </resources>

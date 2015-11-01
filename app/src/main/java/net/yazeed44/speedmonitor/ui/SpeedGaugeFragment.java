@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import net.yazeed44.speedmonitor.R;
 import net.yazeed44.speedmonitor.model.Report;
@@ -20,13 +21,15 @@ import de.greenrobot.event.EventBus;
 public class SpeedGaugeFragment extends Fragment {
 
 
-    private SpeedometerGauge mSpeedView;
+    private SpeedometerGauge mSpeedGauge;
+    private TextView mCurrentSpeedView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View fragment = inflater.inflate(R.layout.fragment_speed_gauge,container,false);
-        mSpeedView = (SpeedometerGauge)fragment.findViewById(R.id.speed_gauge);
+        mSpeedGauge = (SpeedometerGauge)fragment.findViewById(R.id.speed_gauge);
+        mCurrentSpeedView = (TextView)fragment.findViewById(R.id.current_speed_view);
         initSpeedView();
 
         return fragment;
@@ -34,12 +37,12 @@ public class SpeedGaugeFragment extends Fragment {
 
     private void initSpeedView() {
         final int maxSpeed = 240;
-        mSpeedView.setMaxSpeed(maxSpeed);
-        mSpeedView.setMajorTickStep(30);
-        mSpeedView.setMinorTicks(2);
-        mSpeedView.addColoredRange(Report.DUMMY_SPEED_LIMIT, maxSpeed, Color.RED);
+        mSpeedGauge.setMaxSpeed(maxSpeed);
+        mSpeedGauge.setMajorTickStep(30);
+        mSpeedGauge.setMinorTicks(2);
+        mSpeedGauge.addColoredRange(Report.DUMMY_SPEED_LIMIT, maxSpeed, Color.RED);
 
-        mSpeedView.setLabelConverter(new SpeedometerGauge.LabelConverter() {
+        mSpeedGauge.setLabelConverter(new SpeedometerGauge.LabelConverter() {
             @Override
             public String getLabelFor(double progress, double maxProgress) {
                 return String.valueOf((int) Math.round(progress));
@@ -61,6 +64,15 @@ public class SpeedGaugeFragment extends Fragment {
 
     public void onEvent(final Events.NewSpeedCapturedEvent event){
 
-        mSpeedView.setSpeed(event.speed,true);
+        mSpeedGauge.setSpeed(event.speed, true);
+
+        setCurrentSpeedText(event.speed);
+    }
+
+    private void setCurrentSpeedText(final double speed) {
+
+        final String header = getResources().getString(R.string.current_speed);
+
+        mCurrentSpeedView.setText(header + "\n" + speed + " km/h");
     }
 }

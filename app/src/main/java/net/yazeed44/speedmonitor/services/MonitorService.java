@@ -77,22 +77,14 @@ public class MonitorService extends Service implements LocationListener {
         Log.d(TAG, location.toString());
 
         if (location.getSpeed() != 0){
-
-
-
-
             if (mReport.doesLastSpeedDeserveTicket()){
-
                 //Notify user about it and beep sound
                 playBeepSound();
-
                 mReport.pauseTickets();
-
                 mReport.resumeTicketsAfter(Report.DELAY_BETWEEN_TICKETS_SECONDS * 1000);
 
             }
         }
-
         EventBus.getDefault().post(new Events.NewSpeedCapturedEvent(speed));
         EventBus.getDefault().postSticky(new Events.PostReportEvent(mReport));
 
