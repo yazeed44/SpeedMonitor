@@ -56,6 +56,7 @@ public class MonitorService extends Service implements LocationListener {
         super.onCreate();
 
 
+
         Log.d(TAG, "Started monitor service.");
 
         final Criteria criteria = new Criteria();
@@ -73,11 +74,21 @@ public class MonitorService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(final Location location) {
         final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
+        if(mReport.getSpeedRecords().size() == 0){
+
+
+        }
         mReport.recordSpeed(speed, location);
         Log.d(TAG, location.toString());
 
+        mReport.recordSpeed(70,location);
+        mReport.recordSpeed(140, location);
+        mReport.recordSpeed(120, location);
+        mReport.recordSpeed(40, location);
+
+
         if (location.getSpeed() != 0){
-            if (mReport.doesLastSpeedDeserveTicket()){
+            if (mReport.doesLastSpeedDeserveTicket()) {
                 //Notify user about it and beep sound
                 playBeepSound();
                 mReport.pauseTickets();
@@ -94,20 +105,6 @@ public class MonitorService extends Service implements LocationListener {
 
         //TODO WHY it doesn't work?
         BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
-
-        final Timer timer = new Timer();
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
-            }
-        }, 1000, 3 * 1000);
-
-
-
-
-
     }
 
     @Override
@@ -120,7 +117,7 @@ public class MonitorService extends Service implements LocationListener {
     }
 
     private double convertMetersToKmPerHour(final double metersPerSecond){
-        return metersPerSecond * 4;
+        return metersPerSecond * 3.6;
     }
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {

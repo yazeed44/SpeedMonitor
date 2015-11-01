@@ -103,7 +103,7 @@ public class Report {
         for (int i = 0; i < mSpeedRecords.size(); i++) {
             final SpeedEntry record = mSpeedRecords.get(i);
             if (record.isTicket()){
-                tickets.append(i,record);
+                tickets.put(i,record);
             }
         }
         return tickets;
@@ -115,13 +115,14 @@ public class Report {
 
     public String generateReportText() {
         final StringBuilder reportText = new StringBuilder("Report Started at  " + getDateFormattedForReport(mTimeStarted));
+        reportText.append("\n\n");
 
 
 
         final String seperator = "==============";
         final SparseArray<SpeedEntry> tickets = getTickets();
         for (int i = 0; i < tickets.size(); i++) {
-            final SpeedEntry ticket = tickets.get(i);
+            final SpeedEntry ticket = tickets.valueAt(i);
             reportText.append("Ticket - Speed: ")
                     .append(ticket.speed)
                     .append(",  time: ")
@@ -130,7 +131,6 @@ public class Report {
         }
 
         reportText.append("\n")
-                .append("\n")
                 .append("Report ended at ")
                 .append(getDateFormattedForReport(mTimeEnded));
 

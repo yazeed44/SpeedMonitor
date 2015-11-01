@@ -1,5 +1,6 @@
 package net.yazeed44.speedmonitor.ui;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.DataSet;
@@ -78,18 +80,25 @@ public class ChartFragment extends Fragment {
         for (int i = 0; i < records.size(); i++) {
             final int speed = records.get(i).speed;
             speedEntries.add(new Entry(speed, 0));
+
             xVals.add(String.valueOf(i));
 
 
         }
+
+
         final LineDataSet speedDataSet = new LineDataSet(speedEntries,"Speed");
         speedDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+        speedDataSet.setColor(Color.BLACK);
         final ArrayList<LineDataSet> dataSets = new ArrayList<>();
         dataSets.add(speedDataSet);
-
-        ;
         final LineData speedData = new LineData(xVals,dataSets);
         mLineChart.setData(speedData);
+        final Legend legend = mLineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextSize(11f);
+        legend.setTextColor(Color.BLACK);
+        legend.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
         mLineChart.invalidate();
     }
 }
