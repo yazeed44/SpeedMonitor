@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
+import net.yazeed44.speedmonitor.R;
 import net.yazeed44.speedmonitor.util.Events;
 import net.yazeed44.speedmonitor.model.Report;
 
@@ -74,17 +76,11 @@ public class MonitorService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(final Location location) {
         final int speed = (int) Math.round(convertMetersToKmPerHour(location.getSpeed()));
-        if(mReport.getSpeedRecords().size() == 0){
-
-
+        if (mReport.getSpeedRecords().size() == 0){
+            Toast.makeText(getApplicationContext(), R.string.toast_monitoring_started,Toast.LENGTH_SHORT).show();
         }
         mReport.recordSpeed(speed, location);
         Log.d(TAG, location.toString());
-
-        mReport.recordSpeed(70,location);
-        mReport.recordSpeed(140, location);
-        mReport.recordSpeed(120, location);
-        mReport.recordSpeed(40, location);
 
 
         if (location.getSpeed() != 0){

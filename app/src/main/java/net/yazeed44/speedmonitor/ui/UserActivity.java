@@ -139,7 +139,7 @@ public class UserActivity extends AppCompatActivity {
 
             startService(new Intent(this,MonitorService.class));
             menuItem.setTitle(R.string.action_send_report);
-            Toast.makeText(this,R.string.toast_monitoring_started,Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.loading_location,Toast.LENGTH_LONG).show();
         }
 
         else {

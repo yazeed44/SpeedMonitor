@@ -10,4 +10,5 @@
     <string name="tab_chart">Chart</string>
     <string name="speed_limit_line">Speed limit</string>
     <string name="current_speed">Current speed:</string>
+    <string name="loading_location">Loading location. Wait please</string>
 </resources>
