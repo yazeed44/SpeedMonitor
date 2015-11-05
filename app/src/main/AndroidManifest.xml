@@ -29,6 +29,11 @@
         </activity>
 
         <service android:name=".services.MonitorService" />
+        <receiver android:name=".services.SendReportService">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

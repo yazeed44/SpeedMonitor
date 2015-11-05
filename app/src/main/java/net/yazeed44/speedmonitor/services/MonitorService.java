@@ -98,8 +98,6 @@ public class MonitorService extends Service implements LocationListener {
     }
 
     private void playBeepSound() {
-
-        //TODO WHY it doesn't work?
         BEEP_GENERATOR.startTone(ToneGenerator.TONE_PROP_BEEP);
     }
 

@@ -11,4 +11,6 @@
     <string name="speed_limit_line">Speed limit</string>
     <string name="current_speed">Current speed:</string>
     <string name="loading_location">Loading location. Wait please</string>
+    <string name="no_network_to_send_report">No Network! Will attempt to send the report once network is connected</string>
+    <string name="report_sended">All reports sended.</string>
 </resources>

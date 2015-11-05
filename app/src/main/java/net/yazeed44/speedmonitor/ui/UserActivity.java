@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.kristijandraca.backgroundmaillibrary.BackgroundMail;
 
+import net.yazeed44.speedmonitor.model.ReportEmail;
+import net.yazeed44.speedmonitor.services.SendReportService;
 import net.yazeed44.speedmonitor.util.Events;
 import net.yazeed44.speedmonitor.model.Monitor;
 import net.yazeed44.speedmonitor.services.MonitorService;
@@ -156,46 +158,17 @@ public class UserActivity extends AppCompatActivity {
     private void sendEmailToMonitors() {
         final Report report = EventBus.getDefault().getStickyEvent(Events.PostReportEvent.class).report;
         final Realm realm = Realm.getInstance(this);
+        realm.beginTransaction();
 
-        final RealmResults<Monitor> monitorQuery = realm.allObjects(Monitor.class);
+        final ReportEmail reportEmail = realm.createObject(ReportEmail.class);
+        reportEmail.setReportText(report.generateReportText());
 
-        final Monitor[] monitors = new Monitor[monitorQuery.size()];
-
-        final BackgroundMail bm = new BackgroundMail(this);
-        bm.setGmailUserName(PrivateInfo.EMAIL);
-        bm.setGmailPassword(PrivateInfo.PASSWORD);
-        bm.setAttachment(createFileForReport(report).getAbsolutePath());
-        bm.setFormSubject("Report - " + report.getReportStartingDate());
-        bm.setFormBody("Body");
-
-
-        String recipients = "";
-        for (int i = 0; i < monitors.length; i++) {
-            monitors[i] = monitorQuery.get(i);
-
-            recipients +=   monitors[i].getEmail() + "," ;
-        }
-        bm.setMailTo(recipients);
-        bm.send();
+        realm.commitTransaction();
         realm.close();
-    }
 
-    private File createFileForReport(final Report report) {
-        final File reportFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/report_" + report.getReportStartingDate()+".txt");
+        EventBus.getDefault().removeStickyEvent(Events.PostReportEvent.class);
 
-        try {
-            reportFile.createNewFile();
-            final FileOutputStream writer = new FileOutputStream(reportFile);
-            writer.write(report.generateReportText().getBytes());
-            writer.flush();
-            writer.close();
-
-        } catch (IOException e) {
-            Log.e(TAG,e.getMessage());
-        }
-
-
-        return reportFile;
+        new SendReportService().onReceive(this,null);
     }
 
 
